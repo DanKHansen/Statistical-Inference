@@ -81,7 +81,7 @@ str(ds)
 #the null hypothesis is rejected when p < .05 and not rejected when p > .05.
 #Confidence intervals of difference parameters not containing 0 imply that there is a statistically significant difference between the populations.
 
-#A plots of toothelength in relation to supplement type
+#A plots of toothlength in relation to supplement type
 boxplot(ds$len~ds$supp,main="Toothlength in relation to supplement",ylab="length in mm",xlab="supplement type")
 
 boxplot(ds$len~ds$dose,main="Toothlength in relation to dose", ylab="length in mm", xlab="dose in mg/day")
