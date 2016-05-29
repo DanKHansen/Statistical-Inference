@@ -61,7 +61,7 @@ var(vecMeans) - stdDev^2 / n
 
 xrange <- seq(min(vecMeans),max(vecMeans),length.out = n)
 yrange <- dnorm(xrange,theoMean,sd = stdDev/sqrt(n)) * (iterates/2)
-lines(xrange, yrange, lty=4)
+lines(xrange, yrange, lty=4, col="red")
 
 #**************************************************************************
 #PART TWO
