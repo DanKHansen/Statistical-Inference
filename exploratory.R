@@ -26,8 +26,9 @@ set.seed(123456)
 
 for (i in 1 : iterates) vecMeans = c(vecMeans, mean(rexp(n,lambda)))
 
-#Draw a histogram
-hist(vecMeans)
+#Draw a histogram showing the density (total area is equal to one)
+#This will make it more logical when comparing to a normal distribution later on.
+hist(vecMeans,freq = FALSE)
 
 #Task 1. Show the sample mean and compare it to the theoretical mean of the
 #distribution.
@@ -59,9 +60,9 @@ var(vecMeans) - stdDev^2 / n
 #We do that by overlaying a normal distribution with the same mean and ranges
 #as the histogram
 
-xrange <- seq(min(vecMeans),max(vecMeans),length.out = n)
-yrange <- dnorm(xrange,theoMean,sd = stdDev/sqrt(n)) * (iterates/2)
-lines(xrange, yrange, lty=4, col="red")
+xrange <- seq(from=min(vecMeans), to=max(vecMeans), length.out=n)
+yrange <- dnorm(x=xrange, mean=theoMean, sd=stdDev/sqrt(n))
+lines(x=xrange, y=yrange, lty=1, col="red", lwd=2)
 
 #**************************************************************************
 #PART TWO
@@ -82,9 +83,9 @@ str(ds)
 #Confidence intervals of difference parameters not containing 0 imply that there is a statistically significant difference between the populations.
 
 #A plots of toothlength in relation to supplement type
-boxplot(ds$len~ds$supp,main="Toothlength in relation to supplement",ylab="length in mm",xlab="supplement type")
+boxplot(ds$len~ds$supp, main="Toothlength in relation to supplement", ylab="length in mm", xlab="supplement type")
 
-boxplot(ds$len~ds$dose,main="Toothlength in relation to dose", ylab="length in mm", xlab="dose in mg/day")
+boxplot(ds$len~ds$dose, main="Toothlength in relation to dose", ylab="length in mm", xlab="dose in mg/day")
 
 #Check H_0 that the lenght of teeth growth is related to supplement type 
 t.test(ds$len ~ ds$supp)
@@ -92,7 +93,7 @@ t.test(ds$len ~ ds$supp)
 #I.e. we can't say that the type of dose have any impact on the average toothgrowth.
 
 #Plot of length in relation to dose and supplement
-boxplot(ds$len ~ interaction(ds$dose,ds$supp),main="Toothlength in relation to dose.supp",ylab="length in mm", xlab="dose.supp")
+boxplot(ds$len ~ interaction(ds$dose,ds$supp), main="Toothlength in relation to dose.supp", ylab="length in mm", xlab="dose.supp")
 
 #Now how about the teeth growth in relation to dose and supplement type?
 #prepare for t.test
