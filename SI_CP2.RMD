@@ -1,30 +1,161 @@
 ---
 title: "Statistical Inference CP2"
 author: "Dan K. Hansen"
-date: "26 May 2016"
-output: html_document
+date: "31 May 2016"
+output: pdf_document
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-## R Markdown
+## Overview:
+We're going to analyze the ToothGrowth data in the R datasets package. 
 
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+### Tasks to do
+1. Load the ToothGrowth data and perform some basic exploratory data analyses.
+2. Provide a basic summary of the data.
+3. Use confidence intervals and/or hypothesis tests to compare tooth growth by supp and dose. (Only use the techniques from class, even if there's other approaches worth considering)
+4. State your conclusions and the assumptions needed for your conclusions.
 
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+## Data Processing
 
-```{r cars}
-summary(cars)
+**Question 1: Load the ToothGrowth data and perform some basic exploratory data analyses.**
+
+*Loading the dataset:*
+```{r}
+library(datasets)
+ds <- ToothGrowth
 ```
 
-## Including Plots
+*Basic exploration of the ds:*
+```{r}
+head(ds)
+tail(ds)
+str(ds)
+```
+**Question 2: Provide a basic summary of the data**
 
-You can also embed plots, for example:
-
-```{r pressure, echo=FALSE}
-plot(pressure)
+*Basic summary of the dataset:*
+```{r}
+summary(ds)
 ```
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+**Question 3: Use confidence intervals and/or hypothesis tests to compare tooth growth by supp and dose.**
+
+The null hypothesis *(an indication of Status Quo and always considered to be True)* is rejected when p < 0.05 and not rejected when p > 0.05. 
+
+Confidence intervals of difference parameters not containing 0 imply that there is a statistically significant difference between the populations.
+
+*A couple of plots of toothlength in relation to supplement type and dose respectively:*
+
+```{r}
+boxplot(ds$len~ds$supp, main="Toothlength in relation to supplement",
+              ylab="length in mm", xlab="supplement type")
+```
+
+This plot seem to show that supplement OJ is slightly more efficient than supplement VC on toothgrowth.
+
+Check H_0 that the length of teeth growth is related to supplement type:
+
+```{r}
+t.test(ds$len ~ ds$supp)
+```
+p > 0.05 and CI contains 0 => H_0 can not be rejected
+
+I.e. we can't say that the type of supplement have any impact on the average toothgrowth.
+
+
+```{r}
+boxplot(ds$len~ds$dose, main="Toothlength in relation to dose", 
+              ylab="length in mm", xlab="dose in mg/day")
+```
+
+This plot shows that an increase of dose levels have an impact on toothgrowth.
+
+Check H_0 that the length of teeth growth is related to dose level:
+
+```{r}
+t.test(ds$len,ds$dose)
+```
+p < 0.05 and CI does not contain 0 => H_0 can be rejected
+
+I.e. we can say that the dose level seem to have an impact on the average toothgrowth.
+
+*Further investigations and tests:*
+
+Plot of length in relation to dose and supplement:
+```{r}
+boxplot(ds$len ~ interaction(ds$dose,ds$supp), main="Toothlength in relation to dose.supp", 
+              ylab="length in mm", xlab="dose.supp")
+
+```
+
+In this plot we can see that toothgrowth is apparently dependent on dose level, whether or not the supplement type is OJ or VC. There may be indications that OJ is slightly more effective than VC, at least at levels 0.5 and 1 mg/day. At 2 mg/day the difference is not clear. Now let's dig into some tests....
+
+*How about the teeth growth in relation to dose and supplement type?*
+
+*prepare for t.test:*
+```{r}
+dose05_OJ <- subset(ds,ds$dose==.5 & ds$supp=="OJ")
+dose05_VC <- subset(ds,ds$dose==.5 & ds$supp=="VC")
+dose1_OJ <- subset(ds,ds$dose==1 & ds$supp=="OJ")
+dose1_VC <- subset(ds,ds$dose==1 & ds$supp=="VC")
+dose2_OJ <- subset(ds,ds$dose==2 & ds$supp=="OJ")
+dose2_VC <- subset(ds,ds$dose==2 & ds$supp=="VC")
+```
+
+*Or length in relation to increase of dose alone, regardless of supplement type?*
+
+*prepare for t.test:*
+```{r}
+dose05 <- subset(ds,ds$dose==.5)
+dose1 <- subset(ds,ds$dose==1)
+dose2 <- subset(ds,ds$dose==2)
+```
+
+**t.tests of length in relation to supplement type and dosis:**
+```{r}
+t.test(dose05_OJ$len,dose05_VC$len)
+```
+p < 0.05 and CI doesn't contain 0  => H_0 can be rejected
+
+I.e. If dose is 0.5 mg/day there seems to be difference in toothgrowth, depending on supplement type where OJ seem to be a better catalyst for toothgrowth than VC
+
+```{r}
+t.test(dose1_OJ$len,dose1_VC$len)
+```
+p < 0.05 and CI doesn't contain 0  => H_0 can be rejected
+
+I.e. If dose is 1 mg/day there seems to be difference in toothgrowth, depending on supplement type where OJ seem to be a better catalyst for toothgrowth than VC
+
+```{r}
+t.test(dose2_OJ$len,dose2_VC$len)
+```
+p > 0.05 and CI contain 0  => H_0 can not be rejected
+
+I.e. If dose is 2 mg/day there don't seem to be difference in toothgrowth, depending on supplement type. Both OJ and VC seem to be equally good catalyst for toothgrowth
+
+
+**t.tests of length in relation to dosis increase regardless of supplement type**
+```{r}
+t.test(dose05$len,dose1$len)
+```
+p < 0.05 and CI doesn't contain 0 => H_0 can be rejected
+
+I.e. regardless of supplement a dose-increase from 0.5 to 1.0 mg/day seem to increase toothgrowth
+
+```{r}
+t.test(dose1$len,dose2$len)
+```
+p < 0.05 and CI doesn't contain 0 => H_0 can be rejected
+
+I.e. regardless of supplement a dose-increase from 1 to 2.0 mg/day seem to increase toothgrowth
+
+##Conclusions:
+1. Giving additives to guinea pigs either in the form of OJ or VC is resulting in an increase of toothgrowth.
+2. OJ seems to be slightly better than VC using doses of 0.5 or 1 mg/day. At 2 mg/day, there seem to be no
+significant difference in which supplement you use.
+3. Using VC, an increase in daily dose seem to increase toothgrowth in a linear fashion,
+whereas for OJ, the effect seems to drop off the higher the dosis.
+4. More data would improve the results, and hence the conclusions... :-)
